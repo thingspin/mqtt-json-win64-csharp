@@ -1,5 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using uPLibrary.Networking.M2Mqtt;
@@ -12,14 +19,27 @@ namespace HelloMQTT
         MqttClient client = null;
 
         string[] topic = {
-                "K/INSPT/#",
-                "THINGSPIN/MODELS/#",
-                "THINGSPIN/FAULTYCODE/#"
-            };
+            "+/MODELS/#",
+            "INSPPROP/#", "+/INSPPROP/#",
+        };
+
+        byte[] qosLevels = {
+            MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE,
+            MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE
+        };
+
+        ObservableCollection<Model> Models = new ObservableCollection<Model>();
+        ObservableCollection<QualityItem> QualityItems = new ObservableCollection<QualityItem>();
+
+        //List<Model> Models = new List<Model>();
+        //List<QualityItem> QualityItems = new List<QualityItem>();
 
         public Main()
         {
             InitializeComponent();
+
+            Models.CollectionChanged += models_CollectionChanged;
+            QualityItems.CollectionChanged += qualityItems_CollectionChanged;
 
             client = new MqttClient("219.251.4.237");
 
@@ -29,21 +49,66 @@ namespace HelloMQTT
 
             client.Connect(Guid.NewGuid().ToString());
 
-
-
-            byte[] qosLevels = {
-                MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE,
-                MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE,
-                MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE
-            };
-
             client.Subscribe(topic, qosLevels);
+        }
+
+        public void models_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+            {   foreach (Model model in e.NewItems)
+                {
+                    //listBox_Models.Items.Add(model);
+                }
+            }
+
+            if (e.OldItems != null)
+            {   foreach (Model model in e.OldItems)
+                {
+                    //listBox_Models.Items.Remove(model);
+                }
+            }
+        }
+
+        public void qualityItems_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+
         }
 
         void client_MqttMsgPublishReceived(object sender, MqttMsgPublishEventArgs e)
         {
-            var message = System.Text.Encoding.Default.GetString(e.Message);
-            System.Console.WriteLine("Message received: " + message);
+            var topic = e.Topic;
+            var payload = System.Text.Encoding.UTF8.GetString(e.Message);
+
+            Match match = Regex.Match(topic, @"THINGSPIN/MODELS$");
+            if (match.Success) {
+                System.Console.WriteLine("[모델정보] " + topic + "\npayload: " + payload);
+
+                JArray arr = JArray.Parse(payload);
+
+                foreach (var item in arr)
+                {
+                    Model m = new Model((string)item["MODEL_ID"], (string)item["DESCRIPTION"]);
+                    Models.Add(m);
+                }
+
+                return;
+            }
+
+            match = Regex.Match(topic, @"([^/\n]*)INSPPROP/((.*?))");
+            if (match.Success)
+            {
+                topic = topic.Replace("THINGSPIN/", "");
+                string[] token = topic.Split('/');
+                int id = Int16.Parse(token[1]);
+
+                System.Console.WriteLine("[검사항목] " + id + " : " + payload);
+                JObject item = JObject.Parse(payload);
+
+                QualityItem q = new QualityItem(id, (string)item["NAME"], (string)item["DESCRIPTION"]);
+                QualityItems.Add(q);
+
+                return;
+            }
         }
 
         void client_MqttMsgUnsubscribed(object sender, MqttMsgUnsubscribedEventArgs e)
@@ -59,11 +124,13 @@ namespace HelloMQTT
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
             client.Unsubscribe(topic);
+            client.Disconnect();
         }
 
         private void timerPUB_Tick(object sender, EventArgs e)
         {
             var inspctDev = new JObject();
+
             inspctDev.Add("prodModel", "ACPBRC15B20");
             inspctDev.Add("startTime", "2018/05/09 11:05:24");
             inspctDev.Add("pass", false);
@@ -109,6 +176,34 @@ namespace HelloMQTT
             inspctDev.Add("details", details);
 
             client.Publish("K/INSPT/IPC01/0", Encoding.UTF8.GetBytes(inspctDev.ToString()));
+        }
+
+        private void buttonQuit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void buttonGetModelList_Click(object sender, EventArgs e)
+        {
+            listBox_Models.Items.Clear();
+
+            listBox_Models.DataSource = Models;
+        }
+
+        private void button_getQuailtyItems_Click(object sender, EventArgs e)
+        {
+            listView_QualityItems.Items.Clear();
+
+            foreach (QualityItem q in QualityItems)
+            {
+                ListViewItem lvi = new ListViewItem(q.ToString());
+                lvi.SubItems.Add(q.name);
+                lvi.SubItems.Add(q.description);
+
+                listView_QualityItems.Items.Add(lvi);
+
+            }
+
         }
     }
 }
