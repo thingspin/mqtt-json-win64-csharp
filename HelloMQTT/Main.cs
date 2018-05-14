@@ -189,8 +189,6 @@ namespace HelloMQTT
 
         private void buttonGetModelList_Click(object sender, EventArgs e)
         {
-            listBox_Models.Items.Clear();
-
             listBox_Models.DataSource = Models;
         }
 
