@@ -41,7 +41,8 @@
             // 
             // timerPUB
             // 
-            this.timerPUB.Interval = 1500;
+            this.timerPUB.Enabled = true;
+            this.timerPUB.Interval = 3000;
             this.timerPUB.Tick += new System.EventHandler(this.timerPUB_Tick);
             // 
             // listBox_Models

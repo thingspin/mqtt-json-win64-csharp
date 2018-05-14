@@ -135,6 +135,10 @@ namespace HelloMQTT
             inspctDev.Add("startTime", "2018/05/09 11:05:24");
             inspctDev.Add("pass", false);
 
+            inspctDev.Add("barCode", "4343-5454-544-54545"); // optional - future use.
+            inspctDev.Add("macADDR", "4343:5454:544"); // optional - future use.
+            inspctDev.Add("bltADDR", "4343:5454:544"); // optional - future use.
+
             var details = new JArray();
 
             var rand = new Random();
