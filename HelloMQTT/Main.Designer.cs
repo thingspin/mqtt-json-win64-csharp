@@ -33,15 +33,18 @@
             this.listBox_Models = new System.Windows.Forms.ListBox();
             this.buttonGetModelList = new System.Windows.Forms.Button();
             this.listView_QualityItems = new System.Windows.Forms.ListView();
-            this.button_getQuailtyItems = new System.Windows.Forms.Button();
             this.ID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.NAME = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.DESC = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.button_getQuailtyItems = new System.Windows.Forms.Button();
+            this.buttonSend = new System.Windows.Forms.Button();
+            this.listView_Log = new System.Windows.Forms.ListView();
+            this.Toptic = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.Payload = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
             // 
             // timerPUB
             // 
-            this.timerPUB.Enabled = true;
             this.timerPUB.Interval = 3000;
             this.timerPUB.Tick += new System.EventHandler(this.timerPUB_Tick);
             // 
@@ -54,7 +57,7 @@
             this.listBox_Models.ItemHeight = 18;
             this.listBox_Models.Location = new System.Drawing.Point(12, 91);
             this.listBox_Models.Name = "listBox_Models";
-            this.listBox_Models.Size = new System.Drawing.Size(465, 702);
+            this.listBox_Models.Size = new System.Drawing.Size(465, 396);
             this.listBox_Models.TabIndex = 0;
             // 
             // buttonGetModelList
@@ -88,26 +91,10 @@
             this.listView_QualityItems.LabelEdit = true;
             this.listView_QualityItems.Location = new System.Drawing.Point(502, 91);
             this.listView_QualityItems.Name = "listView_QualityItems";
-            this.listView_QualityItems.Size = new System.Drawing.Size(704, 702);
-            this.listView_QualityItems.Sorting = System.Windows.Forms.SortOrder.Ascending;
+            this.listView_QualityItems.Size = new System.Drawing.Size(704, 396);
             this.listView_QualityItems.TabIndex = 2;
             this.listView_QualityItems.UseCompatibleStateImageBehavior = false;
             this.listView_QualityItems.View = System.Windows.Forms.View.Details;
-            // 
-            // button_getQuailtyItems
-            // 
-            this.button_getQuailtyItems.BackColor = System.Drawing.Color.ForestGreen;
-            this.button_getQuailtyItems.FlatAppearance.BorderColor = System.Drawing.Color.Red;
-            this.button_getQuailtyItems.FlatAppearance.BorderSize = 3;
-            this.button_getQuailtyItems.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.button_getQuailtyItems.ForeColor = System.Drawing.SystemColors.Window;
-            this.button_getQuailtyItems.Location = new System.Drawing.Point(502, 12);
-            this.button_getQuailtyItems.Name = "button_getQuailtyItems";
-            this.button_getQuailtyItems.Size = new System.Drawing.Size(704, 73);
-            this.button_getQuailtyItems.TabIndex = 3;
-            this.button_getQuailtyItems.Text = "Get QualityItems";
-            this.button_getQuailtyItems.UseVisualStyleBackColor = false;
-            this.button_getQuailtyItems.Click += new System.EventHandler(this.button_getQuailtyItems_Click);
             // 
             // ID
             // 
@@ -124,13 +111,70 @@
             this.DESC.Text = "설명";
             this.DESC.Width = 100;
             // 
+            // button_getQuailtyItems
+            // 
+            this.button_getQuailtyItems.BackColor = System.Drawing.Color.ForestGreen;
+            this.button_getQuailtyItems.FlatAppearance.BorderColor = System.Drawing.Color.Red;
+            this.button_getQuailtyItems.FlatAppearance.BorderSize = 3;
+            this.button_getQuailtyItems.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.button_getQuailtyItems.ForeColor = System.Drawing.SystemColors.Window;
+            this.button_getQuailtyItems.Location = new System.Drawing.Point(502, 12);
+            this.button_getQuailtyItems.Name = "button_getQuailtyItems";
+            this.button_getQuailtyItems.Size = new System.Drawing.Size(704, 73);
+            this.button_getQuailtyItems.TabIndex = 3;
+            this.button_getQuailtyItems.Text = "Get QualityItems";
+            this.button_getQuailtyItems.UseVisualStyleBackColor = false;
+            this.button_getQuailtyItems.Click += new System.EventHandler(this.button_getQuailtyItems_Click);
+            // 
+            // buttonSend
+            // 
+            this.buttonSend.BackColor = System.Drawing.Color.ForestGreen;
+            this.buttonSend.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.buttonSend.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.buttonSend.Location = new System.Drawing.Point(1237, 13);
+            this.buttonSend.Name = "buttonSend";
+            this.buttonSend.Size = new System.Drawing.Size(338, 460);
+            this.buttonSend.TabIndex = 4;
+            this.buttonSend.Text = "Send Test Data (1-record)";
+            this.buttonSend.UseVisualStyleBackColor = false;
+            this.buttonSend.Click += new System.EventHandler(this.buttonSend_Click);
+            // 
+            // listView_Log
+            // 
+            this.listView_Log.BackColor = System.Drawing.SystemColors.ButtonShadow;
+            this.listView_Log.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.listView_Log.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.Toptic,
+            this.Payload});
+            this.listView_Log.ForeColor = System.Drawing.SystemColors.InactiveCaptionText;
+            this.listView_Log.LabelEdit = true;
+            this.listView_Log.Location = new System.Drawing.Point(12, 494);
+            this.listView_Log.Name = "listView_Log";
+            this.listView_Log.Size = new System.Drawing.Size(1568, 657);
+            this.listView_Log.TabIndex = 5;
+            this.listView_Log.UseCompatibleStateImageBehavior = false;
+            this.listView_Log.View = System.Windows.Forms.View.Details;
+            this.listView_Log.SelectedIndexChanged += new System.EventHandler(this.listView_Log_SelectedIndexChanged);
+            // 
+            // Toptic
+            // 
+            this.Toptic.Text = "Topic";
+            this.Toptic.Width = 250;
+            // 
+            // Payload
+            // 
+            this.Payload.Text = "Payload";
+            this.Payload.Width = 900;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.Tan;
-            this.ClientSize = new System.Drawing.Size(1228, 810);
+            this.ClientSize = new System.Drawing.Size(1592, 1163);
+            this.Controls.Add(this.listView_Log);
+            this.Controls.Add(this.buttonSend);
             this.Controls.Add(this.button_getQuailtyItems);
             this.Controls.Add(this.listView_QualityItems);
             this.Controls.Add(this.buttonGetModelList);
@@ -154,6 +198,10 @@
         private System.Windows.Forms.ColumnHeader ID;
         private System.Windows.Forms.ColumnHeader NAME;
         private System.Windows.Forms.ColumnHeader DESC;
+        private System.Windows.Forms.Button buttonSend;
+        private System.Windows.Forms.ListView listView_Log;
+        private System.Windows.Forms.ColumnHeader Toptic;
+        private System.Windows.Forms.ColumnHeader Payload;
     }
 }
 
