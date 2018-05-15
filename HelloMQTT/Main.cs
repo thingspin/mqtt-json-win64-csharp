@@ -22,13 +22,15 @@ namespace HelloMQTT
         string[] topic = {
             "INSPPROP/#", "+/INSPPROP/#",
             "+/MODELS/#",
-            "+/INSPT/#"
+            "+/INSPT/#",
+            "ACTINADV/#", "+/ACTINADV/#"
         };
 
         byte[] qosLevels = {
             MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE,
             MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE,
-            MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE
+            MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE,
+            MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE
         };
 
         ObservableCollection<Model> Models = new ObservableCollection<Model>();
@@ -113,6 +115,15 @@ namespace HelloMQTT
             if (match.Success)
             {
                 ListViewItem log = new ListViewItem("시험결과 에코 : " + topic);
+                log.SubItems.Add(payload);
+                listView_Log.Items.Insert(0, log);
+                return;
+            }
+
+            match = Regex.Match(topic, @"([^/\n]*)ACTINADV/((.*?))");
+            if (match.Success)
+            {
+                ListViewItem log = new ListViewItem("사전조치룰 : " + topic);
                 log.SubItems.Add(payload);
                 listView_Log.Items.Insert(0, log);
                 return;
@@ -235,7 +246,7 @@ namespace HelloMQTT
 
             client.Publish(topic, payload);
 
-            ListViewItem log = new ListViewItem("시험결과 에코 : " + topic);
+            ListViewItem log = new ListViewItem("시험결과 전송 : " + topic);
             log.SubItems.Add(inspctDev.ToString(Formatting.None));
             listView_Log.Items.Insert(0, log);
 
