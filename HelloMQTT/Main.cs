@@ -171,7 +171,8 @@ namespace HelloMQTT
             string modelID = "AMPBCRB89C10"; // 검사하는 디바이스의 모델명 (모델리스트에서 선택한 값)
             int channel = 2; // 디바이스가 테스트되는 채널 번호 (가정 : 0 ~ 3)
 
-            string topic = lineCD + "/" + pcID + "/" + channel;
+
+            string topic = lineCD + "/" + "INSPT/" + pcID + "/" + channel;
 
             var inspctDev = new JObject();
 
