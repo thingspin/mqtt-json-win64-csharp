@@ -45,6 +45,7 @@
             // 
             // timerPUB
             // 
+            this.timerPUB.Enabled = true;
             this.timerPUB.Interval = 3000;
             this.timerPUB.Tick += new System.EventHandler(this.timerPUB_Tick);
             // 
@@ -148,9 +149,9 @@
             this.Payload});
             this.listView_Log.ForeColor = System.Drawing.SystemColors.InactiveCaptionText;
             this.listView_Log.LabelEdit = true;
-            this.listView_Log.Location = new System.Drawing.Point(12, 494);
+            this.listView_Log.Location = new System.Drawing.Point(12, 493);
             this.listView_Log.Name = "listView_Log";
-            this.listView_Log.Size = new System.Drawing.Size(1568, 657);
+            this.listView_Log.Size = new System.Drawing.Size(1568, 658);
             this.listView_Log.TabIndex = 5;
             this.listView_Log.UseCompatibleStateImageBehavior = false;
             this.listView_Log.View = System.Windows.Forms.View.Details;

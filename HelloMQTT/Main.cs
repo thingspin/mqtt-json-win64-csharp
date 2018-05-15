@@ -149,6 +149,7 @@ namespace HelloMQTT
 
         private void timerPUB_Tick(object sender, EventArgs e)
         {
+            simulation_Send();
         }
 
         private void buttonQuit_Click(object sender, EventArgs e)
@@ -176,33 +177,44 @@ namespace HelloMQTT
         }
 
         private void buttonSend_Click(object sender, EventArgs e)
-        {        
-            string lineCD = "ASSEY"; // 라인구분 코드
-            string pcID = "IPC01"; // 검사기 PC의 아이디 (프로그램에서 세팅값)
-            string modelID = "AMPBCRB89C10"; // 검사하는 디바이스의 모델명 (모델리스트에서 선택한 값)
-            int channel = 2; // 디바이스가 테스트되는 채널 번호 (가정 : 0 ~ 3)
+        {
+            simulation_Send();
+        }
 
+        public void simulation_Send() {
+
+            if (Models.Count == 0 || QualityItems.Count == 0) {
+                return;
+            }
+
+            var rand = new Random();
+            int randomChannel = rand.Next(0, 3);
+            int randomMODEL = rand.Next(0, Models.Count - 1);
+
+            int randomPCID = rand.Next(1, 3);
+
+            string lineCD = "ASSEY"; // 라인구분 코드
+            string pcID = "IPC" + randomPCID.ToString("D2"); // 검사기 PC의 아이디 (프로그램에서 세팅값)
+            string modelID = Models[randomMODEL].id; // 검사하는 디바이스의 모델명 (모델리스트에서 선택한 값)
+
+            int channel = randomChannel; // 디바이스가 테스트되는 채널 번호 (가정 : 0 ~ 3)
 
             string topic = lineCD + "/" + "INSPT/" + pcID + "/" + channel;
 
             var inspctDev = new JObject();
+            bool passAll = true;
 
             inspctDev.Add("prodModel", modelID);
             inspctDev.Add("pcID", pcID);
             inspctDev.Add("channel", channel);
 
             inspctDev.Add("startTime", "2018/05/09 11:05:24");
-            inspctDev.Add("endTime", "2018/05/09 11:06:12");
-            inspctDev.Add("pass", false);
-
+            
             //inspctDev.Add("barCode", "4343-5454-544-54545"); // optional - future use.
             //inspctDev.Add("macADDR", "4343:5454:544"); // optional - future use.
             //inspctDev.Add("bltADDR", "4343:5454:544"); // optional - future use.
 
             var details = new JArray();
-
-            var rand = new Random();
-
 
             foreach (QualityItem q in QualityItems)
             {
@@ -228,6 +240,7 @@ namespace HelloMQTT
                 else
                 {
                     pass = false;
+                    passAll = false; // 검사항목 중 1개라도 불량이면 디바이스는 불량으로 처리
                 }
 
                 inspctItem.Add("iid", q.id); // !!!! 검사항목 번호 !!!!
@@ -240,6 +253,9 @@ namespace HelloMQTT
                 details.Add(inspctItem);
             }
 
+            inspctDev.Add("pass", passAll);
+            inspctDev.Add("endTime", "2018/05/09 11:06:12");
+
             inspctDev.Add("details", details);
 
             byte[] payload = Encoding.UTF8.GetBytes(inspctDev.ToString(Formatting.None));
@@ -249,7 +265,6 @@ namespace HelloMQTT
             ListViewItem log = new ListViewItem("시험결과 전송 : " + topic);
             log.SubItems.Add(inspctDev.ToString(Formatting.None));
             listView_Log.Items.Insert(0, log);
-
         }
 
         private void listView_Log_SelectedIndexChanged(object sender, EventArgs e)
