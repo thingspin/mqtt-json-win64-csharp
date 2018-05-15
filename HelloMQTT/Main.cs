@@ -138,57 +138,6 @@ namespace HelloMQTT
 
         private void timerPUB_Tick(object sender, EventArgs e)
         {
-            var inspctDev = new JObject();
-
-            inspctDev.Add("prodModel", "ACPBRC15B20");
-            inspctDev.Add("startTime", "2018/05/09 11:05:24");
-            inspctDev.Add("pass", false);
-
-            inspctDev.Add("barCode", "4343-5454-544-54545"); // optional - future use.
-            inspctDev.Add("macADDR", "4343:5454:544"); // optional - future use.
-            inspctDev.Add("bltADDR", "4343:5454:544"); // optional - future use.
-
-            var details = new JArray();
-
-            var rand = new Random();
-            for (int i = 0; i < 10; i++)
-            {
-                var inspctItem = new JObject();
-
-                float val = (float)rand.NextDouble();
-                float min = (float)rand.NextDouble();
-                float max = (float)rand.NextDouble();
-
-                if (min > max)
-                {
-                    var t = min;
-                    min = max;
-                    max = min;
-                }
-
-                bool pass = false;
-
-                if (min < val && max > val)
-                {
-                    pass = true;
-                }
-                else
-                {
-                    pass = false;
-                }
-
-                inspctItem.Add("iid", i);
-                inspctItem.Add("val", val); // temporary random - no meaningfull.
-                inspctItem.Add("min", min); // temporary random - no meaningfull.
-                inspctItem.Add("max", max); // temporary random - no meaningfull.
-                inspctItem.Add("pass", pass);
-
-                details.Add(inspctItem);
-            }
-
-            inspctDev.Add("details", details);
-
-            client.Publish("K/INSPT/IPC01/0", Encoding.UTF8.GetBytes(inspctDev.ToString(Formatting.None)));
         }
 
         private void buttonQuit_Click(object sender, EventArgs e)
@@ -216,21 +165,34 @@ namespace HelloMQTT
         }
 
         private void buttonSend_Click(object sender, EventArgs e)
-        {
+        {        
+            string lineCD = "ASSEY"; // 라인구분 코드
+            string pcID = "IPC01"; // 검사기 PC의 아이디 (프로그램에서 세팅값)
+            string modelID = "AMPBCRB89C10"; // 검사하는 디바이스의 모델명 (모델리스트에서 선택한 값)
+            int channel = 2; // 디바이스가 테스트되는 채널 번호 (가정 : 0 ~ 3)
+
+            string topic = lineCD + "/" + pcID + "/" + channel;
+
             var inspctDev = new JObject();
 
-            inspctDev.Add("prodModel", "ACPBRC15B20");
+            inspctDev.Add("prodModel", modelID);
+            inspctDev.Add("pcID", pcID);
+            inspctDev.Add("channel", channel);
+
             inspctDev.Add("startTime", "2018/05/09 11:05:24");
+            inspctDev.Add("endTime", "2018/05/09 11:06:12");
             inspctDev.Add("pass", false);
 
-            inspctDev.Add("barCode", "4343-5454-544-54545"); // optional - future use.
-            inspctDev.Add("macADDR", "4343:5454:544"); // optional - future use.
-            inspctDev.Add("bltADDR", "4343:5454:544"); // optional - future use.
+            //inspctDev.Add("barCode", "4343-5454-544-54545"); // optional - future use.
+            //inspctDev.Add("macADDR", "4343:5454:544"); // optional - future use.
+            //inspctDev.Add("bltADDR", "4343:5454:544"); // optional - future use.
 
             var details = new JArray();
 
             var rand = new Random();
-            for (int i = 0; i < 10; i++)
+
+
+            foreach (QualityItem q in QualityItems)
             {
                 var inspctItem = new JObject();
 
@@ -256,10 +218,11 @@ namespace HelloMQTT
                     pass = false;
                 }
 
-                inspctItem.Add("iid", i);
-                inspctItem.Add("val", val); // temporary random - no meaningfull.
-                inspctItem.Add("min", min); // temporary random - no meaningfull.
-                inspctItem.Add("max", max); // temporary random - no meaningfull.
+                inspctItem.Add("iid", q.id); // !!!! 검사항목 번호 !!!!
+
+                inspctItem.Add("val", val); // temporary random
+                inspctItem.Add("min", min); // temporary random
+                inspctItem.Add("max", max); // temporary random
                 inspctItem.Add("pass", pass);
 
                 details.Add(inspctItem);
@@ -267,7 +230,14 @@ namespace HelloMQTT
 
             inspctDev.Add("details", details);
 
-            client.Publish("K/INSPT/IPC01/0", Encoding.UTF8.GetBytes(inspctDev.ToString(Formatting.None)));
+            byte[] payload = Encoding.UTF8.GetBytes(inspctDev.ToString(Formatting.None));
+
+            client.Publish(topic, payload);
+
+            ListViewItem log = new ListViewItem("시험결과 에코 : " + topic);
+            log.SubItems.Add(inspctDev.ToString(Formatting.None));
+            listView_Log.Items.Insert(0, log);
+
         }
 
         private void listView_Log_SelectedIndexChanged(object sender, EventArgs e)
