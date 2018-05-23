@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -13,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 
+//==================================================================================================================================
 namespace HelloMQTT
 {
     public partial class Main : Form
@@ -22,7 +20,8 @@ namespace HelloMQTT
         string[] topic = {
             "INSPPROP/#", "+/INSPPROP/#",
             "+/MODELS/#",
-            "+/INSPT/#",
+            //"+/INSPT/#",
+            "+/INSPTDEV/#",
             "ACTINADV/#", "+/ACTINADV/#"
         };
 
@@ -35,6 +34,11 @@ namespace HelloMQTT
 
         ObservableCollection<Model> Models = new ObservableCollection<Model>();
         ObservableCollection<QualityItem> QualityItems = new ObservableCollection<QualityItem>();
+
+        int count_Send = 0;
+        int count_Echo = 0;
+
+        Random rand = new Random();
 
         public Main()
         {
@@ -59,7 +63,7 @@ namespace HelloMQTT
 
             client.Subscribe(topic, qosLevels);
         }
-
+ 
         public void models_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
         }
@@ -80,14 +84,22 @@ namespace HelloMQTT
                 string[] token = topic.Split('/');
                 int id = Int16.Parse(token[1]);
 
-                JObject item = JObject.Parse(payload);
+                if (payload != null && payload != "")
+                {
+                    JObject item = JObject.Parse(payload);
 
-                QualityItem q = new QualityItem(id, (string)item["NAME"], (string)item["DESCRIPTION"]);
-                QualityItems.Add(q);
+                    QualityItem q = new QualityItem(id, (string)item["NAME"], (string)item["DESCRIPTION"]);
+                    QualityItems.Add(q);
 
-                ListViewItem log = new ListViewItem("검사항목 수신 : " + topic);
-                log.SubItems.Add(payload);
-                listView_Log.Items.Insert(0, log);
+                    ListViewItem log = new ListViewItem("검사항목 수신 : " + topic);
+                    log.SubItems.Add(payload);
+                    listView_Log.Items.Insert(0, log);
+
+                }
+                else {
+                    ListViewItem log = new ListViewItem("검사항목 삭제 : " + topic);
+                    listView_Log.Items.Insert(0, log);
+                }
 
                 return;
             }
@@ -111,12 +123,16 @@ namespace HelloMQTT
                 return;
             }
 
-            match = Regex.Match(topic, @"([^/\n]*)INSPT/((.*?))");
+            //match = Regex.Match(topic, @"([^/\n]*)INSPT/((.*?))");
+            match = Regex.Match(topic, @"([^/\n]*)INSPTDEV/((.*?))");
             if (match.Success)
             {
-                ListViewItem log = new ListViewItem("시험결과 에코 : " + topic);
-                log.SubItems.Add(payload);
-                listView_Log.Items.Insert(0, log);
+                ++count_Echo;
+                this.label_Count_Return.Text = count_Echo.ToString();
+
+                //ListViewItem log = new ListViewItem("시험결과 에코 : " + topic);
+                //log.SubItems.Add(payload);
+                //listView_Log.Items.Insert(0, log);
                 return;
             }
 
@@ -128,7 +144,6 @@ namespace HelloMQTT
                 listView_Log.Items.Insert(0, log);
                 return;
             }
-
         }
 
         void client_MqttMsgUnsubscribed(object sender, MqttMsgUnsubscribedEventArgs e)
@@ -144,7 +159,6 @@ namespace HelloMQTT
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
             client.Unsubscribe(topic);
-            client.Disconnect();
         }
 
         private void timerPUB_Tick(object sender, EventArgs e)
@@ -187,19 +201,18 @@ namespace HelloMQTT
                 return;
             }
 
-            var rand = new Random();
-            int randomChannel = rand.Next(0, 3);
-            int randomMODEL = rand.Next(0, Models.Count - 1);
-
-            int randomPCID = rand.Next(1, 3);
+            int randomMODEL = rand.Next(1, Models.Count - 1);
+            int randomPCID = rand.Next(1, 4);
+            int randomChannel = rand.Next(1, 5);
 
             string lineCD = "ASSEY"; // 라인구분 코드
-            string pcID = "IPC" + randomPCID.ToString("D2"); // 검사기 PC의 아이디 (프로그램에서 세팅값)
+            string pcID = "SOOSKIM" + randomPCID.ToString("D2"); // 검사기 PC의 아이디 (프로그램에서 세팅값)
             string modelID = Models[randomMODEL].id; // 검사하는 디바이스의 모델명 (모델리스트에서 선택한 값)
 
             int channel = randomChannel; // 디바이스가 테스트되는 채널 번호 (가정 : 0 ~ 3)
 
-            string topic = lineCD + "/" + "INSPT/" + pcID + "/" + channel;
+            //string topic = lineCD + "/" + "INSPT/" + pcID + "/" + channel; 
+            string topic = lineCD + "/" + "INSPTDEV/" + pcID + "/" + channel;
 
             var inspctDev = new JObject();
             bool passAll = true;
@@ -208,28 +221,30 @@ namespace HelloMQTT
             inspctDev.Add("pcID", pcID);
             inspctDev.Add("channel", channel);
 
-            inspctDev.Add("startTime", "2018/05/09 11:05:24");
+            string sTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+
+            inspctDev.Add("startTime", sTime);
             
             //inspctDev.Add("barCode", "4343-5454-544-54545"); // optional - future use.
             //inspctDev.Add("macADDR", "4343:5454:544"); // optional - future use.
             //inspctDev.Add("bltADDR", "4343:5454:544"); // optional - future use.
 
             var details = new JArray();
-
-            foreach (QualityItem q in QualityItems)
+            //foreach (QualityItem q in QualityItems)
+            for (int i = 0; i < QualityItems.Count; i++)
             {
+                QualityItem q = QualityItems[i];
+
                 var inspctItem = new JObject();
 
-                float val = (float)rand.NextDouble();
-                float min = (float)rand.NextDouble();
-                float max = (float)rand.NextDouble();
+                //double u1 = 1.0 - rand.NextDouble(); //uniform(0,1] random doubles
+                //double u2 = 1.0 - rand.NextDouble();
+                //double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)
+                //double randNormal = mean + stdDev * randStdNormal; //random normal(mean,stdDev^2)
 
-                if (min > max)
-                {
-                    var t = min;
-                    min = max;
-                    max = min;
-                }
+                float val = (float)rand.NextGaussian(-1.0, +1.0);
+                float min = (float)-0.95;
+                float max = (float)+0.95;
 
                 bool pass = false;
 
@@ -253,8 +268,19 @@ namespace HelloMQTT
                 details.Add(inspctItem);
             }
 
+            /*
+            var randPASS = new Random();
+            if (randPASS.Next(0, 7) == 0)
+                passAll = false;
+            else
+                passAll = true;
+            */
+
             inspctDev.Add("pass", passAll);
-            inspctDev.Add("endTime", "2018/05/09 11:06:12");
+
+            string eTime = DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss");
+
+            inspctDev.Add("endTime", eTime);
 
             inspctDev.Add("details", details);
 
@@ -262,14 +288,59 @@ namespace HelloMQTT
 
             client.Publish(topic, payload);
 
-            ListViewItem log = new ListViewItem("시험결과 전송 : " + topic);
-            log.SubItems.Add(inspctDev.ToString(Formatting.None));
-            listView_Log.Items.Insert(0, log);
+            ++count_Send;
+            this.label_Count_Send.Text = count_Send.ToString();
+            
+            //ListViewItem log = new ListViewItem("시험결과 전송 : " + topic);
+            //log.SubItems.Add(inspctDev.ToString(Formatting.None));
+            //listView_Log.Items.Insert(0, log);
         }
 
         private void listView_Log_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }
+
+        private void button_ClearLog_Click(object sender, EventArgs e)
+        {
+            count_Echo = 0;
+            this.label_Count_Return.Text = count_Echo.ToString();
+
+            count_Send = 0;
+            this.label_Count_Send.Text = count_Send.ToString();
+
+            listView_Log.Items.Clear();
+        }
+
+        private void button_StartPublisher_Click(object sender, EventArgs e)
+        {
+            this.timerPUB.Enabled = true;
+        }
+
+        private void button_StopPubliser_Click(object sender, EventArgs e)
+        {
+            this.timerPUB.Enabled = false;
+        }
+
+        private void numericUpDown_intervalMS_ValueChanged(object sender, EventArgs e)
+        {
+            bool tE = timerPUB.Enabled;
+            timerPUB.Enabled = false;
+
+            timerPUB.Interval = (int)((NumericUpDown)sender).Value;
+
+            timerPUB.Enabled = tE;
+        }
+
+        private void button_Quit_Click(object sender, EventArgs e)
+        {
+            timerPUB.Enabled = false;
+
+            client.Unsubscribe(topic);
+            client.Disconnect();
+
+            this.Close();
+        }
     }
 }
+//==================================================================================================================================

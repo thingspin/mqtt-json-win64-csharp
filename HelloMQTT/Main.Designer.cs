@@ -41,12 +41,19 @@
             this.listView_Log = new System.Windows.Forms.ListView();
             this.Toptic = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Payload = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.button_ClearLog = new System.Windows.Forms.Button();
+            this.button_StartPublisher = new System.Windows.Forms.Button();
+            this.button_StopPubliser = new System.Windows.Forms.Button();
+            this.numericUpDown_intervalMS = new System.Windows.Forms.NumericUpDown();
+            this.button_Quit = new System.Windows.Forms.Button();
+            this.label_Count_Send = new System.Windows.Forms.Label();
+            this.label_Count_Return = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_intervalMS)).BeginInit();
             this.SuspendLayout();
             // 
             // timerPUB
             // 
-            this.timerPUB.Enabled = true;
-            this.timerPUB.Interval = 3000;
+            this.timerPUB.Interval = 1000;
             this.timerPUB.Tick += new System.EventHandler(this.timerPUB_Tick);
             // 
             // listBox_Models
@@ -132,9 +139,9 @@
             this.buttonSend.BackColor = System.Drawing.Color.ForestGreen;
             this.buttonSend.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.buttonSend.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.buttonSend.Location = new System.Drawing.Point(1237, 13);
+            this.buttonSend.Location = new System.Drawing.Point(1228, 13);
             this.buttonSend.Name = "buttonSend";
-            this.buttonSend.Size = new System.Drawing.Size(338, 460);
+            this.buttonSend.Size = new System.Drawing.Size(347, 72);
             this.buttonSend.TabIndex = 4;
             this.buttonSend.Text = "Send Test Data (1-record)";
             this.buttonSend.UseVisualStyleBackColor = false;
@@ -151,7 +158,7 @@
             this.listView_Log.LabelEdit = true;
             this.listView_Log.Location = new System.Drawing.Point(12, 493);
             this.listView_Log.Name = "listView_Log";
-            this.listView_Log.Size = new System.Drawing.Size(1568, 658);
+            this.listView_Log.Size = new System.Drawing.Size(1568, 591);
             this.listView_Log.TabIndex = 5;
             this.listView_Log.UseCompatibleStateImageBehavior = false;
             this.listView_Log.View = System.Windows.Forms.View.Details;
@@ -167,6 +174,104 @@
             this.Payload.Text = "Payload";
             this.Payload.Width = 900;
             // 
+            // button_ClearLog
+            // 
+            this.button_ClearLog.BackColor = System.Drawing.Color.Black;
+            this.button_ClearLog.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.button_ClearLog.Location = new System.Drawing.Point(1228, 349);
+            this.button_ClearLog.Name = "button_ClearLog";
+            this.button_ClearLog.Size = new System.Drawing.Size(347, 60);
+            this.button_ClearLog.TabIndex = 6;
+            this.button_ClearLog.Text = "Clear Log";
+            this.button_ClearLog.UseVisualStyleBackColor = false;
+            this.button_ClearLog.Click += new System.EventHandler(this.button_ClearLog_Click);
+            // 
+            // button_StartPublisher
+            // 
+            this.button_StartPublisher.Location = new System.Drawing.Point(1228, 130);
+            this.button_StartPublisher.Name = "button_StartPublisher";
+            this.button_StartPublisher.Size = new System.Drawing.Size(155, 86);
+            this.button_StartPublisher.TabIndex = 7;
+            this.button_StartPublisher.Text = "Start Publisher";
+            this.button_StartPublisher.UseVisualStyleBackColor = true;
+            this.button_StartPublisher.Click += new System.EventHandler(this.button_StartPublisher_Click);
+            // 
+            // button_StopPubliser
+            // 
+            this.button_StopPubliser.Location = new System.Drawing.Point(1412, 130);
+            this.button_StopPubliser.Name = "button_StopPubliser";
+            this.button_StopPubliser.Size = new System.Drawing.Size(154, 86);
+            this.button_StopPubliser.TabIndex = 8;
+            this.button_StopPubliser.Text = "Stop Publisher";
+            this.button_StopPubliser.UseVisualStyleBackColor = true;
+            this.button_StopPubliser.Click += new System.EventHandler(this.button_StopPubliser_Click);
+            // 
+            // numericUpDown_intervalMS
+            // 
+            this.numericUpDown_intervalMS.Font = new System.Drawing.Font("굴림", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.numericUpDown_intervalMS.Increment = new decimal(new int[] {
+            500,
+            0,
+            0,
+            0});
+            this.numericUpDown_intervalMS.Location = new System.Drawing.Point(1228, 91);
+            this.numericUpDown_intervalMS.Maximum = new decimal(new int[] {
+            60000,
+            0,
+            0,
+            0});
+            this.numericUpDown_intervalMS.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.numericUpDown_intervalMS.Name = "numericUpDown_intervalMS";
+            this.numericUpDown_intervalMS.Size = new System.Drawing.Size(338, 33);
+            this.numericUpDown_intervalMS.TabIndex = 9;
+            this.numericUpDown_intervalMS.Value = new decimal(new int[] {
+            1500,
+            0,
+            0,
+            0});
+            this.numericUpDown_intervalMS.ValueChanged += new System.EventHandler(this.numericUpDown_intervalMS_ValueChanged);
+            // 
+            // button_Quit
+            // 
+            this.button_Quit.BackColor = System.Drawing.Color.Black;
+            this.button_Quit.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.button_Quit.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.button_Quit.Location = new System.Drawing.Point(1228, 415);
+            this.button_Quit.Name = "button_Quit";
+            this.button_Quit.Size = new System.Drawing.Size(347, 72);
+            this.button_Quit.TabIndex = 10;
+            this.button_Quit.Text = "Quit";
+            this.button_Quit.UseVisualStyleBackColor = false;
+            this.button_Quit.Click += new System.EventHandler(this.button_Quit_Click);
+            // 
+            // label_Count_Send
+            // 
+            this.label_Count_Send.BackColor = System.Drawing.Color.Lime;
+            this.label_Count_Send.Font = new System.Drawing.Font("굴림", 28F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label_Count_Send.ForeColor = System.Drawing.Color.Red;
+            this.label_Count_Send.Location = new System.Drawing.Point(1236, 229);
+            this.label_Count_Send.Name = "label_Count_Send";
+            this.label_Count_Send.Size = new System.Drawing.Size(330, 54);
+            this.label_Count_Send.TabIndex = 11;
+            this.label_Count_Send.Text = "0";
+            this.label_Count_Send.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label_Count_Return
+            // 
+            this.label_Count_Return.BackColor = System.Drawing.Color.GreenYellow;
+            this.label_Count_Return.Font = new System.Drawing.Font("굴림", 28F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label_Count_Return.ForeColor = System.Drawing.Color.Black;
+            this.label_Count_Return.Location = new System.Drawing.Point(1236, 292);
+            this.label_Count_Return.Name = "label_Count_Return";
+            this.label_Count_Return.Size = new System.Drawing.Size(330, 54);
+            this.label_Count_Return.TabIndex = 12;
+            this.label_Count_Return.Text = "0";
+            this.label_Count_Return.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 18F);
@@ -174,6 +279,13 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.Tan;
             this.ClientSize = new System.Drawing.Size(1592, 1163);
+            this.Controls.Add(this.label_Count_Return);
+            this.Controls.Add(this.label_Count_Send);
+            this.Controls.Add(this.button_Quit);
+            this.Controls.Add(this.numericUpDown_intervalMS);
+            this.Controls.Add(this.button_StopPubliser);
+            this.Controls.Add(this.button_StartPublisher);
+            this.Controls.Add(this.button_ClearLog);
             this.Controls.Add(this.listView_Log);
             this.Controls.Add(this.buttonSend);
             this.Controls.Add(this.button_getQuailtyItems);
@@ -185,6 +297,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Hello MQTT with C#";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_intervalMS)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -203,6 +316,13 @@
         private System.Windows.Forms.ListView listView_Log;
         private System.Windows.Forms.ColumnHeader Toptic;
         private System.Windows.Forms.ColumnHeader Payload;
+        private System.Windows.Forms.Button button_ClearLog;
+        private System.Windows.Forms.Button button_StartPublisher;
+        private System.Windows.Forms.Button button_StopPubliser;
+        private System.Windows.Forms.NumericUpDown numericUpDown_intervalMS;
+        private System.Windows.Forms.Button button_Quit;
+        private System.Windows.Forms.Label label_Count_Send;
+        private System.Windows.Forms.Label label_Count_Return;
     }
 }
 
