@@ -19,17 +19,22 @@ namespace HelloMQTT
 
         string[] topic = {
             "INSPPROP/#", "+/INSPPROP/#",
-            "+/MODELS/#",
+            "+/MODELS",
             //"+/INSPT/#",
             "+/INSPTDEV/#",
             "ACTINADV/#", "+/ACTINADV/#"
+            ,
+            "THINGSPIN/PRODUCTION/PLAN/KR",
         };
 
         byte[] qosLevels = {
-            MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE,
             MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE,
+            MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE,
+            //MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE,
             MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE,
             MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE, MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE
+            ,
+             MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE
         };
 
         ObservableCollection<Model> Models = new ObservableCollection<Model>();
@@ -84,6 +89,10 @@ namespace HelloMQTT
                 string[] token = topic.Split('/');
                 int id = Int16.Parse(token[1]);
 
+                if (id == 0) {
+                    return;
+                }
+
                 if (payload != null && payload != "")
                 {
                     JObject item = JObject.Parse(payload);
@@ -107,18 +116,38 @@ namespace HelloMQTT
             match = Regex.Match(topic, @"THINGSPIN/MODELS$");
             if (match.Success)
             {
+                //JArray arr = JArray.Parse(payload);
 
-                JArray arr = JArray.Parse(payload);
+                //foreach (var item in arr)
+                //{
+                //    Model m = new Model((string)item["MODEL_ID"], (string)item["DESCRIPTION"]);
+                //    Models.Add(m);
+                //}
 
-                foreach (var item in arr)
+                //ListViewItem log = new ListViewItem("모델정보 수신 : " + topic);
+                //log.SubItems.Add(payload);
+                //listView_Log.Items.Insert(0, log);
+
+                return;
+            }
+
+            match = Regex.Match(topic, @"THINGSPIN/PRODUCTION/PLAN/KR$");
+            if (match.Success)
+            {
+                if (payload != null && payload != "")
                 {
-                    Model m = new Model((string)item["MODEL_ID"], (string)item["DESCRIPTION"]);
-                    Models.Add(m);
-                }
+                    JArray arr = JArray.Parse(payload);
 
-                ListViewItem log = new ListViewItem("모델정보 수신 : " + topic);
-                log.SubItems.Add(payload);
-                listView_Log.Items.Insert(0, log);
+                    foreach (var item in arr)
+                    {
+                        Model m = new Model((string)item["MODEL_ID"], (string)item["MODEL_ID"]/*(string)item["AMOUNT"]*/);
+                        Models.Add(m);
+                    }
+
+                    ListViewItem log = new ListViewItem("모델정보 수신 : " + topic);
+                    log.SubItems.Add(payload);
+                    listView_Log.Items.Insert(0, log);
+                }
 
                 return;
             }
@@ -144,6 +173,10 @@ namespace HelloMQTT
                 listView_Log.Items.Insert(0, log);
                 return;
             }
+
+            return;
+
+
         }
 
         void client_MqttMsgUnsubscribed(object sender, MqttMsgUnsubscribedEventArgs e)
